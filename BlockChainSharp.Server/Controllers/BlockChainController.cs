@@ -12,6 +12,7 @@ namespace BlockChainSharp.Server.Controllers
   {
     private readonly BlockChain<T> _blockChain;
     private readonly ILogger<BlockChainController<T>> _logger;
+    private string ChainType => ControllerContext.ActionDescriptor.ControllerName;
 
     public BlockChainController(
       BlockChain<T> blockChain,
@@ -39,7 +40,7 @@ namespace BlockChainSharp.Server.Controllers
     [Route("Mine")]
     public ActionResult<Block<T>> Mine()
     {
-      return Ok(_blockChain.Mine());
+      return Ok(_blockChain.Mine(ChainType));
     }
 
     [HttpPost]
@@ -62,8 +63,7 @@ namespace BlockChainSharp.Server.Controllers
     [Route("Nodes/Resolve")]
     public ActionResult<List<Block<T>>> Resolve()
     {
-      var chainType = ControllerContext.ActionDescriptor.ControllerName;
-      return Ok(_blockChain.Resolve(chainType));
+      return Ok(_blockChain.Resolve(ChainType));
     }
   }
 }

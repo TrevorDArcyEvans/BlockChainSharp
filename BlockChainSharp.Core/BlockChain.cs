@@ -2,7 +2,6 @@
 {
   using System;
   using System.Collections.Generic;
-  using System.Diagnostics;
   using System.Linq;
   using System.Net;
   using System.Security.Cryptography;
@@ -15,6 +14,7 @@
     private T _currentData;
     private List<Block<T>> _chain = new();
     private readonly HashSet<Node> _nodes = new();
+    private int _rewards;
     private Block<T> LastBlock => _chain.Last();
 
     public string NodeId { get; }
@@ -34,9 +34,6 @@
       while (currentIndex < chain.Count)
       {
         var block = chain.ElementAt(currentIndex);
-        Debug.WriteLine($"{lastBlock}");
-        Debug.WriteLine($"{block}");
-        Debug.WriteLine("----------------------------");
 
         // Check that the hash of the block is correct
         if (block.PreviousHash != GetHash(lastBlock))
@@ -57,6 +54,12 @@
       return true;
     }
 
+    /// <summary>
+    /// Check other nodes to see if they have mined the current block.
+    /// Will update chain with longest chain from other nodes.
+    /// </summary>
+    /// <param name="chainType">Type of data stored on chain.  Used to retrieve full chain from other nodes.</param>
+    /// <returns>true if another node has longest chain, false if we have the longest chain</returns>
     private bool ResolveConflicts(string chainType)
     {
       List<Block<T>> newChain = null;
@@ -81,9 +84,11 @@
 
       if (newChain is null)
       {
+        // We have the longest chain
         return false;
       }
 
+      // Someone else has a longer chain, so update ours
       _chain = newChain;
       return true;
     }
@@ -146,7 +151,7 @@
     }
 
     // web server calls
-    public Block<T> Mine()
+    public Block<T> Mine(string chainType)
     {
       if (_currentData is null)
       {
@@ -154,8 +159,14 @@
       }
 
       var proof = CreateProofOfWork(LastBlock.Proof, LastBlock.PreviousHash);
-
       var block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
+
+      // Finished mining, so see if we get a reward
+      if (!ResolveConflicts(chainType))
+      {
+        // we have the longest chain
+        _rewards++;
+      }
 
       return block;
     }
