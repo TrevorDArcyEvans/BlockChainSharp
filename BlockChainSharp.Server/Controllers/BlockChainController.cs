@@ -8,7 +8,7 @@ namespace BlockChainSharp.Server.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public abstract class BlockChainController<T> : ControllerBase where T : new()
+  public abstract class BlockChainController<T> : ControllerBase where T : class
   {
     private readonly BlockChain<T> _blockChain;
     private readonly ILogger<BlockChainController<T>> _logger;
@@ -40,6 +40,14 @@ namespace BlockChainSharp.Server.Controllers
     public ActionResult<Block<T>> Mine()
     {
       return Ok(_blockChain.Mine());
+    }
+
+    [HttpPost]
+    [Route("CreateData")]
+    public ActionResult<int> CreateData(
+      [FromBody] T data)
+    {
+      return Ok(_blockChain.CreateData(data));
     }
 
     [HttpPost]

@@ -4,6 +4,6 @@ namespace BlockChainSharp.Model
 
   public sealed class GuidBlock
   {
-    public Guid Guid { get; } = Guid.NewGuid();
+    public Guid Guid { get; set; } = Guid.NewGuid();
   }
 }

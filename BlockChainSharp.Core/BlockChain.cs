@@ -10,9 +10,9 @@
   using System.Text;
   using Newtonsoft.Json;
 
-  public class BlockChain<T> where T : new()
+  public class BlockChain<T> where T : class
   {
-    private T _currentData = new();
+    private T _currentData;
     private List<Block<T>> _chain = new();
     private readonly HashSet<Node> _nodes = new();
     private Block<T> LastBlock => _chain.Last();
@@ -29,12 +29,11 @@
     // private functionality
     private static bool IsValidChain(List<Block<T>> chain)
     {
-      Block<T> block;
       var lastBlock = chain.First();
       var currentIndex = 1;
       while (currentIndex < chain.Count)
       {
-        block = chain.ElementAt(currentIndex);
+        var block = chain.ElementAt(currentIndex);
         Debug.WriteLine($"{lastBlock}");
         Debug.WriteLine($"{block}");
         Debug.WriteLine("----------------------------");
@@ -60,7 +59,7 @@
 
     private bool ResolveConflicts(string chainType)
     {
-       List<Block<T>> newChain = null;
+      List<Block<T>> newChain = null;
 
       foreach (var node in _nodes)
       {
@@ -71,7 +70,7 @@
         if (response.StatusCode == HttpStatusCode.OK)
         {
           var json = new StreamReader(response.GetResponseStream()).ReadToEnd();
-          var chain = JsonConvert. DeserializeObject<List<Block<T>>>(json);
+          var chain = JsonConvert.DeserializeObject<List<Block<T>>>(json);
 
           if (chain.Count > _chain.Count && IsValidChain(chain))
           {
@@ -97,10 +96,12 @@
         Timestamp = DateTime.UtcNow,
         Data = _currentData,
         Proof = proof,
-        PreviousHash = previousHash ?? GetHash(_chain.Last())
+        PreviousHash = previousHash ?? GetHash(LastBlock)
       };
 
       _chain.Add(block);
+      _currentData = null;
+
       return block;
     }
 
@@ -147,9 +148,13 @@
     // web server calls
     public Block<T> Mine()
     {
+      if (_currentData is null)
+      {
+        return null;
+      }
+
       var proof = CreateProofOfWork(LastBlock.Proof, LastBlock.PreviousHash);
 
-      CreateTransaction(sender: "0", recipient: NodeId, amount: 1);
       var block = CreateNewBlock(proof /*, _lastBlock.PreviousHash*/);
 
       return block;
@@ -176,9 +181,9 @@
       return _chain;
     }
 
-    public int CreateTransaction(string sender, string recipient, int amount)
+    public int CreateData(T data)
     {
-      _currentData = new T();
+      _currentData = data;
 
       return LastBlock != null ? LastBlock.Index + 1 : 0;
     }
