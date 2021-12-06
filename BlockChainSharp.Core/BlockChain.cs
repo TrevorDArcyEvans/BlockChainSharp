@@ -73,7 +73,7 @@
         }
 
         var json = new StreamReader(response.GetResponseStream()).ReadToEnd();
-        var chain = JsonConvert.DeserializeObject<List<Block<T>>>(json);
+        var chain = JsonConvert.DeserializeObject<List<Block<T>>>(json) ?? new List<Block<T>>();
 
         if (chain.Count > _chain.Count && IsValidChain(chain))
         {
