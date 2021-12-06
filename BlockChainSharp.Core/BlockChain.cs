@@ -3,12 +3,12 @@
   using System;
   using System.Collections.Generic;
   using System.Diagnostics;
-  using System.IO;
   using System.Linq;
   using System.Net;
   using System.Security.Cryptography;
   using System.Text;
   using Newtonsoft.Json;
+  using RestSharp;
 
   public class BlockChain<T> where T : class
   {
@@ -63,17 +63,15 @@
 
       foreach (var node in _nodes)
       {
-        var url = new Uri(node.Address, $"/{chainType}/GetFullChain");
-        var request = (HttpWebRequest)WebRequest.Create(url);
-        var response = (HttpWebResponse)request.GetResponse();
-
+        var client = new RestClient(node.Address);
+        var request = new RestRequest($"/{chainType}/GetFullChain", DataFormat.Json);
+        var response = client.Get<List<Block<T>>>(request);
         if (response.StatusCode != HttpStatusCode.OK)
         {
           continue;
         }
 
-        var json = new StreamReader(response.GetResponseStream()).ReadToEnd();
-        var chain = JsonConvert.DeserializeObject<List<Block<T>>>(json) ?? new List<Block<T>>();
+        var chain = response.Data;
 
         if (chain.Count > _chain.Count && IsValidChain(chain))
         {
