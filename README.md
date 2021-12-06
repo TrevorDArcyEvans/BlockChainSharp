@@ -11,6 +11,7 @@ Based on the following articles:
   * data must be JSON serialisable
   * _GuidBlock_ provided as a sample data structure
 * rewards are given in _BlockChain_ code
+  * most other sample implementations conflate data and rewards
 * functionality exposed via _WebAPI_
 * _Swagger_ UI to allow testing
 
