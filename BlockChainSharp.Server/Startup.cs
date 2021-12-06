@@ -8,7 +8,7 @@ namespace BlockChainSharp.Server
   using Microsoft.Extensions.Hosting;
   using Microsoft.OpenApi.Models;
 
-  public class Startup
+  public sealed class Startup
   {
     public Startup(IConfiguration configuration)
     {

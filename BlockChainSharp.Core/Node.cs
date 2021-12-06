@@ -11,6 +11,8 @@ namespace BlockChainSharp.Core
       Address = address;
     }
 
+    #region Equals overrides
+
     private bool Equals(Node other)
     {
       return Address.Equals(other.Address);
@@ -25,5 +27,7 @@ namespace BlockChainSharp.Core
     {
       return Address.GetHashCode();
     }
+
+    #endregion
   }
 }
