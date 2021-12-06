@@ -67,25 +67,27 @@
         var request = (HttpWebRequest)WebRequest.Create(url);
         var response = (HttpWebResponse)request.GetResponse();
 
-        if (response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode != HttpStatusCode.OK)
         {
-          var json = new StreamReader(response.GetResponseStream()).ReadToEnd();
-          var chain = JsonConvert.DeserializeObject<List<Block<T>>>(json);
+          continue;
+        }
 
-          if (chain.Count > _chain.Count && IsValidChain(chain))
-          {
-            newChain = chain;
-          }
+        var json = new StreamReader(response.GetResponseStream()).ReadToEnd();
+        var chain = JsonConvert.DeserializeObject<List<Block<T>>>(json);
+
+        if (chain.Count > _chain.Count && IsValidChain(chain))
+        {
+          newChain = chain;
         }
       }
 
-      if (newChain != null)
+      if (newChain is null)
       {
-        _chain = newChain;
-        return true;
+        return false;
       }
 
-      return false;
+      _chain = newChain;
+      return true;
     }
 
     private Block<T> CreateNewBlock(int proof, string previousHash = null)
