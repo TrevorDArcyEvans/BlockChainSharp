@@ -14,9 +14,9 @@
     private T _currentData;
     private List<Block<T>> _chain = new();
     private readonly HashSet<Node> _nodes = new();
-    private int _rewards;
     private Block<T> LastBlock => _chain.Last();
 
+    public int Rewards { get; private set; }
     public string NodeId { get; }
 
     // ctor
@@ -165,7 +165,7 @@
       if (!ResolveConflicts(chainType))
       {
         // we have the longest chain
-        _rewards++;
+        Rewards++;
       }
 
       return block;
@@ -192,6 +192,11 @@
       return _chain;
     }
 
+    /// <summary>
+    /// Put specified data into chain.
+    /// </summary>
+    /// <param name="data">Data to store in chain</param>
+    /// <returns>index of block with data</returns>
     public int CreateData(T data)
     {
       _currentData = data;

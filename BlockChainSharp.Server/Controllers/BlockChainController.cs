@@ -43,6 +43,13 @@ namespace BlockChainSharp.Server.Controllers
       return Ok(_blockChain.Mine(ChainType));
     }
 
+    [HttpGet]
+    [Route("Rewards")]
+    public ActionResult<int> Rewards()
+    {
+      return Ok(_blockChain.Rewards);
+    }
+
     [HttpPost]
     [Route("CreateData")]
     public ActionResult<int> CreateData(
